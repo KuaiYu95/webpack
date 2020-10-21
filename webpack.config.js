@@ -62,28 +62,42 @@ module.exports = {
           {
             test: /\.js$/,
             exclude: /node_modules/,
-            loader: 'babel-loader',
-            options: {
-              presets: [
-                [
-                  '@babel/preset-env',
-                  {
-                    useBuiltIns: 'usage',
-                    corejs: { version: 3 },
-                    targets: {
-                      chrome: '60',
-                      firefox: '60',
-                      ie: '9',
-                      safari: '10',
-                      edge: '17'
-                    }
-                  }
-                ]
-              ],
-              // 开启babel缓存
-              // 第二次构建，会读取之前的缓存
-              cacheDirectory: true
-            }
+            use: [
+              // 开启多进程打包
+              // 进程启动大概600ms，进程通信也有开销
+              // 只有工作消耗时间比较长，才需要
+              // 'thread-loader',
+              {
+                loader: 'thread-loader',
+                options: {
+                  workers: 2 // 进程2个
+                }
+              },
+              {
+                loader: 'babel-loader',
+                options: {
+                  presets: [
+                    [
+                      '@babel/preset-env',
+                      {
+                        useBuiltIns: 'usage',
+                        corejs: { version: 3 },
+                        targets: {
+                          chrome: '60',
+                          firefox: '60',
+                          ie: '9',
+                          safari: '10',
+                          edge: '17'
+                        }
+                      }
+                    ]
+                  ],
+                  // 开启babel缓存
+                  // 第二次构建，会读取之前的缓存
+                  cacheDirectory: true
+                }
+              }
+            ]
           },
           {
             // 问题：默认处理不了 html 中 img 图片（使用 html-loader 解决）
