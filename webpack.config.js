@@ -141,6 +141,13 @@ module.exports = {
     }),
     new OptimizeCssAssetsWebpackPlugin()
   ],
+  // 可以将 node_modules 中代码单独打包成一个chunk最终输出
+  // 自动分析多入口 chunk 中，有无公共的文件，如果有，打包成一个单独的chunk
+  optimization: {
+    splitChunks: {
+      chunks: 'all'
+    }
+  },
   // 特点：只会在内存中打包，不会有任何输出
   devServer: {
     contentBase: resolve(__dirname, 'build'),
