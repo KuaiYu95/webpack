@@ -176,11 +176,36 @@ module.exports = {
   // 特点：只会在内存中打包，不会有任何输出
   devServer: {
     contentBase: resolve(__dirname, 'build'),
+    // 监视 contentBase 目录下所有文件，一旦变化就会 reload
+    watchContentBase: true,
+    watchOptions: {
+      // 忽略文件
+      ignored: /node_modules/,
+    },
     // 启动 gzip 压缩
     compress: true,
-    port: 3000,
+    port: 5000,
     // 自动打开默认浏览器
-    open: true
+    open: true,
+    // 开启 HMR 功能
+    hot: true,
+    // 不显示启动服务器日志信息
+    clientLogLevel: 'none',
+    // 除一些基本启动信息以外，其他内容都不用显示
+    quiet: true,
+    // 出现错误不要全屏提示
+    overlay: false,
+    // 服务器代理：开发环境跨域问题
+    proxy: {
+      // 一旦devServer(5000)服务器接收到一个/api/xxx请求，就会把请求转发到另一个服务器
+      '/api': {
+        target: 'http://localhost:3000',
+        // 请求路径改写：/api/xxx ---> /xxx
+        pathRewrite: {
+          '^/api': ''
+        }
+      }
+    }
   },
   devtool: 'source-map',
   // 解析模块规则
