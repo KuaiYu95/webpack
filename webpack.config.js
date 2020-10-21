@@ -182,5 +182,16 @@ module.exports = {
     // 自动打开默认浏览器
     open: true
   },
-  devtool: 'source-map'
+  devtool: 'source-map',
+  // 解析模块规则
+  resolve: {
+    // 配置解析模块路径别名
+    alias: {
+      "@util": resolve(__dirname, 'src/util')
+    },
+    // 配置省略文件路径的后缀名
+    extensions: ['.js', '.less', '.json'],
+    // 告诉webpack 解析模块应该去哪个目录
+    modules: [resolve(__dirname, '../../node_modules'), 'node_modules']
+  }
 }
