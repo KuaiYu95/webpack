@@ -2,9 +2,11 @@
 * webpack.config.js
 **/
 const { resolve } = require('path')
+const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin') // css 兼容性处理
 const OptimizeCssAssetsWebpackPlugin = require('optimize-css-assets-webpack-plugin')  // css 代码压缩
+const AddAssetHtmlWebpackPlugin = require('add-asset-html-webpack-plugin')  // css 代码压缩
 
 // process.env.NODE_ENV = 'development'
 
@@ -117,7 +119,7 @@ module.exports = {
               // 给图片重命名，取hash前10位，取图片原扩展名
               name: '[hash:10].[ext]',
               // 输出路径
-              publicPath: '../',
+              publicPath: './images',
               outputPath: 'images'
             }
           },
@@ -152,6 +154,15 @@ module.exports = {
         collapseWhitespace: true,
         removeComments: true,
       }
+    }),
+    // 告诉webpack哪些库不参与打包，同时使用时的名称也得变
+    new webpack.DllReferencePlugin({
+      manifest: resolve(__dirname, 'dll/manifest.json')
+    }),
+    // 将某个文件打包输出去，并在 html 中自动引入该资源
+    new AddAssetHtmlWebpackPlugin({
+      filepath: resolve(__dirname, 'dll/jquery.js'),
+      publicPath: './'
     }),
     new OptimizeCssAssetsWebpackPlugin()
   ],
