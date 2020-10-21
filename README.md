@@ -591,7 +591,7 @@ module.exports = {
 
 #### 7. 生产环境配置
 
-```
+```js
 /**
 * webpack.config.js
 **/
@@ -1068,7 +1068,7 @@ module.exports = {
   }
   ```
 
-5⃣️ tree shaking
+##### 5⃣️ tree shaking
 
 > 前提：1. 开启 production 环境；2. 必须使用 ES6 模块化
 >
@@ -1080,9 +1080,9 @@ module.exports = {
 >
 > ​	可能会将 css / @babel/pollfill 等文件干掉
 >
-> 解决：``sideEffects: ["*.css"]`
+> 解决：`sideEffects: ["*.css"]`
 
-6⃣️ code split
+##### 6⃣️ code split
 
 + 多入口情况
 
@@ -1220,8 +1220,6 @@ import(/* webpackChunkName: 'test', webpackPrefetch: true */'./test.js').then(su
                 }
               ]
             ],
-            // 开启babel缓存
-            // 第二次构建，会读取之前的缓存
             cacheDirectory: true
           }
         }
@@ -1232,4 +1230,94 @@ import(/* webpackChunkName: 'test', webpackPrefetch: true */'./test.js').then(su
 ```bash
 npm i thread-loader -D
 ```
+
+##### 🔟 externals
+
++ 配置 externals
++ 手动在 html 中引入 CDN 链接
+
+```js
+const { resolve } = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+
+module.exports = {
+  entry: './src/index.js',
+  output: {
+    filename: 'build.js',
+    path: resolve(__dirname, 'build')
+  },
+  mode: 'production',
+  module: {
+    rules: [
+      // loader 的配置
+    ]
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: './src/index.html'
+    })
+  ],
+  externals: {
+    // 忽略 jquery 打包
+    jquery: 'jQuery'
+  }
+}
+```
+
+```html
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.10.0/jquery.js"></script>
+```
+
+##### 1⃣️1⃣️ DLL (使用 dll 技术，对某些库进行单独打包：jquery, react, vue ...)
+
+```js
+/**
+ * webpack.dll.js
+ */
+
+const { resolve } = require('path')
+const webpack = require('webpack')
+
+module.exports = {
+  entry: {
+    jquery: ['jquery'],
+  },
+  output: {
+    filename: '[name].js',
+    path: resolve(__dirname, 'dll'),
+    library: '[name]_[hash]'  // 打包的库里面向外暴露出去的内容叫什么名字
+  },
+  plugins: [
+    new webpack.DllPlugin({
+      name: '[name]_[hash]',  // 映射库的暴露的内容名称
+      path: resolve(__dirname, 'dll/manifest.json') // 输出文件路径
+    })
+  ],
+  mode: 'production'
+}
+```
+
+```bash
+npm i add-asset-html-webpack-plugin -D
+```
+
+```
+/**
+* webpack.config.js
+**/
+const webpack = require('webpack')
+
+module.exports = {
+  plugins: [
+    // 告诉webpack哪些库不参与打包，同时使用时的名称也得变
+    new webpack.DllReferencePlugin({
+      manifest: resolve(__dirname, 'dll/manifest.json')
+    })
+  ],
+}
+```
+
+#### 8 性能优化总结
+
+![webpack 性能优化大纲](./webpack.png)
 
